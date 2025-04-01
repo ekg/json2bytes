@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use clap::Parser;
 use serde_json::Value;
-use std::io::{self, BufRead, BufReader, Read};
+use std::io::{self, BufReader, Read};
 use std::fs::File;
 use std::collections::HashSet;
 
@@ -55,9 +55,9 @@ fn process_stream<R: Read>(reader: R, min_size: usize, field_names: &Option<Hash
     long_about = None
 )]
 struct Args {
-    /// JSON file to process (use '-' for stdin)
+    /// JSON files to process (use '-' for stdin)
     #[arg(default_value = "-")]
-    input: String,
+    inputs: Vec<String>,
 
     /// Minimum string length to extract
     #[arg(short, long, default_value_t = DEFAULT_MIN_SIZE)]
@@ -77,13 +77,15 @@ fn main() -> Result<()> {
         fields.into_iter().collect::<HashSet<String>>()
     });
     
-    if args.input != "-" {
-        // Read from file
-        let file = File::open(&args.input).context("Failed to open input file")?;
-        process_stream(file, args.size, &field_names)?;
-    } else {
-        // Read from stdin
-        process_stream(io::stdin(), args.size, &field_names)?;
+    for input in &args.inputs {
+        if input != "-" {
+            // Read from file
+            let file = File::open(input).context(format!("Failed to open input file: {}", input))?;
+            process_stream(file, args.size, &field_names)?;
+        } else {
+            // Read from stdin
+            process_stream(io::stdin(), args.size, &field_names)?;
+        }
     }
     
     Ok(())

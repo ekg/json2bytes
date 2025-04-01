@@ -34,6 +34,9 @@ The compiled binary will be available at `target/release/json2bytes`.
 # Process a JSON file with default minimum string length
 json2bytes input.json
 
+# Process multiple JSON files
+json2bytes file1.json file2.json file3.json
+
 # Process a JSON file with custom minimum string length
 json2bytes --size 10 input.json
 
@@ -44,7 +47,7 @@ cat input.json | json2bytes -
 json2bytes --fields "bio,email" input.json
 
 # Combine options
-json2bytes --fields "description,body" --size 15 input.json
+json2bytes --fields "description,body" --size 15 file1.json file2.json
 ```
 
 ### Command Line Options
