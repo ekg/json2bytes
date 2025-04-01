@@ -1,4 +1,4 @@
-# JSON Text Extractor
+# json2bytes
 
 A command-line utility that extracts string values from JSON data that meet a specified minimum length requirement.
 
@@ -19,32 +19,32 @@ A command-line utility that extracts string values from JSON data that meet a sp
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/json-text-extractor.git
-cd json-text-extractor
+git clone https://github.com/yourusername/json2bytes.git
+cd json2bytes
 
 # Build the project
 cargo build --release
 ```
 
-The compiled binary will be available at `target/release/json-text-extractor`.
+The compiled binary will be available at `target/release/json2bytes`.
 
 ## Usage
 
 ```bash
 # Process a JSON file with default minimum string length
-json-text-extractor input.json
+json2bytes input.json
 
 # Process a JSON file with custom minimum string length
-json-text-extractor --size 10 input.json
+json2bytes --size 10 input.json
 
 # Process JSON from stdin
-cat input.json | json-text-extractor -
+cat input.json | json2bytes -
 
 # Extract strings only from specific fields
-json-text-extractor --fields "bio,email" input.json
+json2bytes --fields "bio,email" input.json
 
 # Combine options
-json-text-extractor --fields "description,body" --size 15 input.json
+json2bytes --fields "description,body" --size 15 input.json
 ```
 
 ### Command Line Options
@@ -80,7 +80,7 @@ john.doe@example.com
 
 Command:
 ```bash
-json-text-extractor --fields "email" input.json
+json2bytes --fields "email" input.json
 ```
 
 Output:
