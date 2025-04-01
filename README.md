@@ -54,6 +54,7 @@ json2bytes --fields "description,body" --size 15 file1.json file2.json
 
 - `-f, --fields <field_list>`: Only extract strings from specified fields (comma-separated)
 - `-s, --size <size>`: Minimum string length to extract (default: 10)
+- `--null-delim`: Add a null byte after each extracted string (useful for binary processing)
 
 ### Examples
 
@@ -89,6 +90,22 @@ json2bytes --fields "email" input.json
 Output:
 ```
 john.doe@example.com
+```
+
+#### Using Null Byte Termination
+
+Command:
+```bash
+json2bytes --null-delim input.json | hexdump -C
+```
+
+Output: (Each string is followed by a newline and a null byte)
+```
+00000000  53 6f 66 74 77 61 72 65  20 64 65 76 65 6c 6f 70  |Software develop|
+00000010  65 72 20 77 69 74 68 20  35 2b 20 79 65 61 72 73  |er with 5+ years|
+00000020  20 6f 66 20 65 78 70 65  72 69 65 6e 63 65 0a 00  | of experience..|
+00000030  6a 6f 68 6e 2e 64 6f 65  40 65 78 61 6d 70 6c 65  |john.doe@example|
+00000040  2e 63 6f 6d 0a 00                                 |.com..|
 ```
 
 ## How It Works
