@@ -34,14 +34,27 @@ The compiled binary will be available at `target/release/json-text-extractor`.
 # Process a JSON file with default minimum string length
 json-text-extractor input.json
 
-# Process a JSON file with custom minimum string length (e.g., 10 characters)
-json-text-extractor input.json 10
+# Process a JSON file with custom minimum string length
+json-text-extractor --size 10 input.json
 
 # Process JSON from stdin
 cat input.json | json-text-extractor -
+
+# Extract strings only from specific fields
+json-text-extractor --fields "bio,email" input.json
+
+# Combine options
+json-text-extractor --fields "description,body" --size 15 input.json
 ```
 
-### Example
+### Command Line Options
+
+- `-f, --fields <field_list>`: Only extract strings from specified fields (comma-separated)
+- `-s, --size <size>`: Minimum string length to extract (default: 10)
+
+### Examples
+
+#### Basic Example
 
 Input JSON:
 ```json
@@ -60,6 +73,18 @@ Input JSON:
 Output (with min length 10):
 ```
 Software developer with 5+ years of experience
+john.doe@example.com
+```
+
+#### Using Field Filters
+
+Command:
+```bash
+json-text-extractor --fields "email" input.json
+```
+
+Output:
+```
 john.doe@example.com
 ```
 
