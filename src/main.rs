@@ -1,8 +1,8 @@
 use anyhow::{Context, Result};
+use clap::Parser;
 use serde_json::Value;
 use std::io::{self, BufRead, BufReader, Read};
 use std::fs::File;
-use std::env;
 use std::collections::HashSet;
 
 const DEFAULT_MIN_SIZE: usize = 10; // Minimum size in bytes to consider a string worth printing
@@ -45,62 +45,45 @@ fn process_stream<R: Read>(reader: R, min_size: usize, field_names: &Option<Hash
     Ok(())
 }
 
+/// CLI arguments for json2bytes
+#[derive(Parser)]
+#[command(
+    name = "json2bytes",
+    author = "json2bytes developers",
+    version,
+    about = "Extract string values from JSON that meet a minimum length requirement",
+    long_about = None
+)]
+struct Args {
+    /// JSON file to process (use '-' for stdin)
+    #[arg(default_value = "-")]
+    input: String,
+
+    /// Minimum string length to extract
+    #[arg(short, long, default_value_t = DEFAULT_MIN_SIZE)]
+    size: usize,
+
+    /// Only extract strings from specified fields (comma-separated)
+    #[arg(short, long, value_delimiter = ',')]
+    fields: Option<Vec<String>>,
+}
+
 fn main() -> Result<()> {
-    // Parse arguments
-    let args: Vec<String> = env::args().collect();
+    // Parse command-line arguments using clap
+    let args = Args::parse();
     
-    // Initialize variables with default values
-    let mut input_source = String::from("-");
-    let mut min_size = DEFAULT_MIN_SIZE;
-    let mut field_names: Option<HashSet<String>> = None;
+    // Convert fields vector to HashSet if provided
+    let field_names = args.fields.map(|fields| {
+        fields.into_iter().collect::<HashSet<String>>()
+    });
     
-    // Process command line arguments
-    let mut i = 1;
-    while i < args.len() {
-        match args[i].as_str() {
-            "-f" | "--fields" => {
-                if i + 1 < args.len() {
-                    field_names = Some(
-                        args[i + 1]
-                            .split(',')
-                            .map(|s| s.trim().to_string())
-                            .collect()
-                    );
-                    i += 2;
-                } else {
-                    eprintln!("Error: --fields option requires an argument");
-                    std::process::exit(1);
-                }
-            }
-            "-s" | "--size" => {
-                if i + 1 < args.len() {
-                    if let Ok(size) = args[i + 1].parse() {
-                        min_size = size;
-                        i += 2;
-                    } else {
-                        eprintln!("Error: Invalid minimum size");
-                        std::process::exit(1);
-                    }
-                } else {
-                    eprintln!("Error: --size option requires an argument");
-                    std::process::exit(1);
-                }
-            }
-            _ => {
-                // Assume it's the input file
-                input_source = args[i].clone();
-                i += 1;
-            }
-        }
-    }
-    
-    if input_source != "-" {
+    if args.input != "-" {
         // Read from file
-        let file = File::open(&input_source).context("Failed to open input file")?;
-        process_stream(file, min_size, &field_names)?;
+        let file = File::open(&args.input).context("Failed to open input file")?;
+        process_stream(file, args.size, &field_names)?;
     } else {
         // Read from stdin
-        process_stream(io::stdin(), min_size, &field_names)?;
+        process_stream(io::stdin(), args.size, &field_names)?;
     }
     
     Ok(())
