@@ -35,12 +35,12 @@ fn process_json_value(
         }
         Value::Array(arr) => {
             for item in arr {
-                process_json_value(item, min_size, field_names, current_field);
+                process_json_value(item, min_size, field_names, current_field, null_terminate);
             }
         }
         Value::Object(obj) => {
             for (key, val) in obj {
-                process_json_value(val, min_size, field_names, Some(key));
+                process_json_value(val, min_size, field_names, Some(key), null_terminate);
             }
         }
         _ => {}
