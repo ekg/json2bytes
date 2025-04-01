@@ -56,7 +56,7 @@ fn process_stream<R: Read>(reader: R, min_size: usize, field_names: &Option<Hash
 )]
 struct Args {
     /// JSON files to process (use '-' for stdin)
-    #[arg(default_value = "-")]
+    #[arg(default_value = "-", num_args = 1..)]
     inputs: Vec<String>,
 
     /// Minimum string length to extract
