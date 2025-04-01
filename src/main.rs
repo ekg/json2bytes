@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use clap::Parser;
 use serde_json::Value;
-use std::io::{self, BufReader, Read};
+use std::io::{self, BufReader, Read, Write};
 use std::fs::File;
 use std::collections::HashSet;
 
@@ -16,7 +16,11 @@ fn process_json_value(value: &Value, min_size: usize, field_names: &Option<HashS
     match value {
         Value::String(s) => {
             if should_process && s.len() >= min_size {
-                println!("{}", s);
+                // Print the string followed by a null byte
+                let stdout = io::stdout();
+                let mut handle = stdout.lock();
+                writeln!(handle, "{}", s).unwrap();
+                handle.write_all(&[0]).unwrap();
             }
         }
         Value::Array(arr) => {
