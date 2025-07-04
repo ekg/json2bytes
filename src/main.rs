@@ -86,7 +86,7 @@ fn process_stream<R: Read>(
     name = "json2bytes",
     author = "json2bytes developers",
     version,
-    about = "Extract string values from JSON that meet a minimum length requirement",
+    about = "Extract string values from JSON that meet a minimum length requirement. Commonly used with -f text to extract only 'text' fields.",
     long_about = None
 )]
 struct Args {
@@ -98,7 +98,8 @@ struct Args {
     #[arg(short, long, default_value_t = DEFAULT_MIN_SIZE)]
     size: usize,
 
-    /// Only extract strings from specified fields (comma-separated)
+    /// Only extract strings from specified fields (comma-separated). 
+    /// By default, extracts from ALL string fields. Common usage: -f text
     #[arg(short, long, value_delimiter = ',')]
     fields: Option<Vec<String>>,
     
