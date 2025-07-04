@@ -5,7 +5,7 @@ use std::io::{self, BufReader, Read, Write};
 use std::fs::File;
 use std::collections::HashSet;
 
-const DEFAULT_MIN_SIZE: usize = 10; // Minimum size in bytes to consider a string worth printing
+const DEFAULT_MIN_SIZE: usize = 0; // Minimum size in bytes to consider a string worth printing
 
 fn parse_separator(input: &str) -> Result<Vec<u8>> {
     if input.starts_with("\\x") || input.starts_with("\\X") {
