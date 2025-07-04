@@ -1,12 +1,15 @@
 # json2bytes
 
-A command-line utility that extracts string values from JSON data that meet a specified minimum length requirement.
+A command-line utility that extracts string values from JSON data that meet a specified minimum length requirement. Commonly used with `-f text` to extract only 'text' fields from JSON objects.
 
 ## Features
 
 - Extract all string values from JSON files or stdin
-- Filter strings by minimum length
+- Filter strings by minimum length (default: 0)
+- Filter by specific field names (e.g., `-f text`)
 - Process JSON streams (newline-delimited JSON)
+- Configurable record separator (default: ASCII record separator `\x1e`)
+- Support for multiple input files
 - Simple command-line interface
 
 ## Installation
@@ -31,7 +34,7 @@ The compiled binary will be available at `target/release/json2bytes`.
 ## Usage
 
 ```bash
-# Process a JSON file with default minimum string length
+# Process a JSON file extracting all strings (default minimum length is 0)
 json2bytes input.json
 
 # Process multiple JSON files
@@ -39,6 +42,9 @@ json2bytes file1.json file2.json file3.json
 
 # Process a JSON file with custom minimum string length
 json2bytes --size 10 input.json
+
+# Extract only from 'text' fields (common usage)
+json2bytes -f text input.json
 
 # Process JSON from stdin
 cat input.json | json2bytes -
@@ -52,9 +58,9 @@ json2bytes --fields "description,body" --size 15 file1.json file2.json
 
 ### Command Line Options
 
-- `-f, --fields <field_list>`: Only extract strings from specified fields (comma-separated)
-- `-s, --size <size>`: Minimum string length to extract (default: 10)
-- `--null-delim`: Add a null byte after each extracted string (useful for binary processing)
+- `-f, --fields <field_list>`: Only extract strings from specified fields (comma-separated). By default, extracts from ALL string fields. Common usage: `-f text`
+- `-s, --size <size>`: Minimum string length to extract (default: 0)
+- `--separator <separator>`: Record separator to use (default: ASCII record separator `\x1e`). Supports hex notation like `\x1e`, `\x00`
 
 ### Examples
 
@@ -74,10 +80,22 @@ Input JSON:
 }
 ```
 
+Output (with default min length 0, all strings extracted):
+```
+John Doe
+Software developer with 5+ years of experience
+rust
+javascript
+python
+john.doe@example.com
+123-456-7890
+```
+
 Output (with min length 10):
 ```
 Software developer with 5+ years of experience
 john.doe@example.com
+123-456-7890
 ```
 
 #### Using Field Filters
@@ -92,25 +110,43 @@ Output:
 john.doe@example.com
 ```
 
-#### Using Null Byte Termination
+#### Using Custom Separator
 
 Command:
 ```bash
-json2bytes --null-delim input.json | hexdump -C
+# Use null byte as separator
+json2bytes --separator '\x00' -f email input.json | hexdump -C
 ```
 
-Output: (Each string is followed by a newline and a null byte)
+Output: (String followed by null byte)
 ```
-00000000  53 6f 66 74 77 61 72 65  20 64 65 76 65 6c 6f 70  |Software develop|
-00000010  65 72 20 77 69 74 68 20  35 2b 20 79 65 61 72 73  |er with 5+ years|
-00000020  20 6f 66 20 65 78 70 65  72 69 65 6e 63 65 0a 00  | of experience..|
-00000030  6a 6f 68 6e 2e 64 6f 65  40 65 78 61 6d 70 6c 65  |john.doe@example|
-00000040  2e 63 6f 6d 0a 00                                 |.com..|
+00000000  6a 6f 68 6e 2e 64 6f 65  40 65 78 61 6d 70 6c 65  |john.doe@example|
+00000010  2e 63 6f 6d 00                                    |.com.|
+```
+
+#### Common Usage: Extract 'text' Fields
+
+For JSON data with 'text' fields:
+```json
+[
+  {"id": 1, "text": "Hello world", "metadata": "ignore this"},
+  {"id": 2, "text": "Another message", "timestamp": "2024-01-01"}
+]
+```
+
+Command:
+```bash
+json2bytes -f text input.json
+```
+
+Output:
+```
+Hello worldAnother message
 ```
 
 ## How It Works
 
-The tool reads JSON data from a file or stdin, traverses all values, and outputs any string values that are at least as long as the specified minimum length.
+The tool reads JSON data from files or stdin, traverses all values, and outputs any string values that are at least as long as the specified minimum length. By default, it extracts from all string fields, but you can filter to specific field names using the `-f` option. Each extracted string is followed by a configurable separator (default: ASCII record separator `\x1e`).
 
 ## License
 
